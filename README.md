@@ -1,17 +1,19 @@
 # WAVM for XuperChain
 
-This is a XuperChain WASM Virtual Machine based on [WAVM/WAVM](https://github.com/WAVM/WAVM), main changes compared 
+This is a XuperChain WASM Virtual Machine based on [WAVM/WAVM](https://github.com/WAVM/WAVM), most of the changes compared 
 to the original repo are that we add gas metering to the wasm code and provide a golang wrapper. 
 All the changes are not invasive to the original WAVM.
   
-C/C++ code compiled with emscripten can run on WAVM without any other resolvers. For other language it doesn't support yet.
+C/C++ code compiled with emscripten can run on WAVM without any other resolvers. For other languages it doesn't support yet.
 
 ## Quick start
 
 Requirements:
 
 * GCC 5.x
-* LLVM 8.0.0
+* LLVM 8.0.0 (recommended)
+* XuperUnion v3.1
+
   
 ### Standalone 
   If you try to test the new fetures like gas metering, just do as the original repository tells you : [Building WAVM](./WAVM/README.md)
