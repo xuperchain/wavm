@@ -2,7 +2,7 @@
 #include <map>
 #include <string>
 //cost 100000 means non-support instruction
-std::map<std::string, uint32_t> kGasCostTable = {
+std::map<std::string, uint32_t> g_gas_cost_table = {
   {"<invalid>"                   , 0              },
   {"alloca"                      , 100000         },
   {"atomic.notify"               , 100000         },
