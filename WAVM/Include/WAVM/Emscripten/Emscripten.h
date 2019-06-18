@@ -1,0 +1,38 @@
+#pragma once
+
+#include <vector>
+
+#include "WAVM/IR/Value.h"
+#include "WAVM/Runtime/Runtime.h"
+
+namespace WAVM { namespace IR {
+	struct Module;
+}}
+
+namespace WAVM { namespace Emscripten {
+	struct Instance
+	{
+		Runtime::GCPointer<Runtime::ModuleInstance> env;
+		Runtime::GCPointer<Runtime::ModuleInstance> asm2wasm;
+		Runtime::GCPointer<Runtime::ModuleInstance> global;
+
+		Runtime::GCPointer<Runtime::Memory> memory;
+
+		U32 errnoAddress{0};
+	};
+
+	EMSCRIPTEN_API Instance* instantiate(Runtime::Compartment* compartment,
+										 const IR::Module& module);
+	EMSCRIPTEN_API void initializeGlobals(Emscripten::Instance* instance,
+										  Runtime::Context* context,
+										  const IR::Module& module,
+										  Runtime::ModuleInstance* moduleInstance);
+	EMSCRIPTEN_API void injectCommandArgs(Emscripten::Instance* instance,
+										  const std::vector<const char*>& argStrings,
+										  std::vector<IR::Value>& outInvokeArgs);
+
+    EMSCRIPTEN_API void setGasLimit(Emscripten::Instance* instance, U64 gaslimit);
+    EMSCRIPTEN_API U64 getGasUsed(Emscripten::Instance* instance);
+    EMSCRIPTEN_API void resetMemories(Emscripten::Instance* instance, const IR::Module& module, const std::vector<U8>& mem);
+    EMSCRIPTEN_API void getMemoryImage(Emscripten::Instance* instance, std::vector<U8>& mem);
+}}
