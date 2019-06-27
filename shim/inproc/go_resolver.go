@@ -55,7 +55,8 @@ func fetch_response(cCtxid C.int64_t, size C.uint) *C.char {
 	ctxid := int64(cCtxid)
 	sess := sessionBuf[ctxid]
 	if sess == nil {
-		panic(fmt.Sprintf("can not find the context, id=%d", ctxid))
+		fmt.Printf("can not find the context, id=%d\n", ctxid)
+		return C.CString(string(""))
 	}
 	if int(size) != len(sess.responseBuf) {
 		return C.CString(string(""))
