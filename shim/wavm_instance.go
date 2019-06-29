@@ -96,7 +96,6 @@ func (wi *wavmInstance) Exec(method string) error {
 	var (
 		rt *SafeRT
 	)
-	inproc.SetCtx(wi.creator.resolver, wi.ctx.ID, wi.rpcServer)
 	//lazy load and code cache
 	if rti, ok := wi.creator.moduleMap.Load(wi.ctx.ContractName); !ok {
 		return ErrModuleNotFound
@@ -106,6 +105,7 @@ func (wi *wavmInstance) Exec(method string) error {
 
 	rt.mutex.Lock()
 	defer rt.mutex.Unlock()
+	inproc.SetCtx(wi.creator.resolver, wi.ctx.ID, wi.rpcServer)
 	args := []string{}
 	data, _ := json.Marshal(args)
 

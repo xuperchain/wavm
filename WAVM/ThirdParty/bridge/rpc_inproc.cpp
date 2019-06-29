@@ -23,13 +23,10 @@ uint32_t XChainServiceClient::call_method(const std::string& method, const std::
 }
 
 uint32_t XChainServiceClient::fetch_response(std::string& buffer, uint32_t size) {
-    char* res = _cfr(_ctxid, size);
-    if (size != strlen(res)) {
-        if (res != nullptr) free(res);
-        return 1;
-    }
-    buffer.assign(res, size);
+    char* res = _cfr(_ctxid, size + 1);
+    char success = res[0];
+    buffer.assign(res + 1, size);
     if (res != nullptr) free(res);
-    return 0;
+    return success - '0';
 }
 }
