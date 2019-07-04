@@ -25,6 +25,7 @@ uint32_t XChainServiceClient::call_method(const std::string& method, const std::
 uint32_t XChainServiceClient::fetch_response(std::string& buffer, uint32_t size) {
     char* res = _cfr(_ctxid, size + 1);
     char success = res[0];
+    buffer.resize(size + 1, 0);
     buffer.assign(res + 1, size);
     if (res != nullptr) free(res);
     return success - '0';
