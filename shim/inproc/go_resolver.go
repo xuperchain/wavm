@@ -18,16 +18,21 @@ import (
 // PTR is a new type
 type PTR C.PTR
 
+type responseDesc struct {
+	Body  []byte
+	Error bool
+}
+
 type session struct {
 	rpcServer   *memrpc.Server
-	responseBuf []byte
+	responseBuf responseDesc
 	ctxId       int64
 }
 
 var sessionBuf map[int64]*session = map[int64]*session{}
 
-//export call_method
-func call_method(cCtxid C.int64_t, p *C.char, size C.uint, p2 *C.char, size2 C.uint) C.uint {
+//export CallMethod
+func CallMethod(cCtxid C.int64_t, p *C.char, size C.uint, p2 *C.char, size2 C.uint) C.uint {
 
 	ctxid := int64(cCtxid)
 	sess := sessionBuf[ctxid]
@@ -39,28 +44,40 @@ func call_method(cCtxid C.int64_t, p *C.char, size C.uint, p2 *C.char, size2 C.u
 	args := C.GoStringN(p2, C.int(size2))
 
 	resBuf, err := sess.rpcServer.CallMethod(context.TODO(), ctxid, method, []byte(args))
+
+	var respDesc responseDesc
 	if err != nil {
-		sess.responseBuf = make([]byte, len(err.Error()))
-		copy(sess.responseBuf, []byte(err.Error()))
-		return C.uint(len(err.Error()))
+		respDesc.Error = true
+		respDesc.Body = make([]byte, len(err.Error()))
+		copy(respDesc.Body, []byte(err.Error()))
 	} else {
-		sess.responseBuf = make([]byte, len(resBuf))
-		copy(sess.responseBuf, resBuf)
-		return C.uint(len(resBuf))
+		if len(resBuf) > 0 {
+			respDesc.Body = make([]byte, len(resBuf))
+			copy(respDesc.Body, resBuf)
+		}
 	}
+	sess.responseBuf = respDesc
+	sessionBuf[ctxid] = sess
+	return C.uint(len(sess.responseBuf.Body))
 }
 
-//export fetch_response
-func fetch_response(cCtxid C.int64_t, size C.uint) *C.char {
+//export FetchResponse
+func FetchResponse(cCtxid C.int64_t, size C.uint) *C.char {
 	ctxid := int64(cCtxid)
 	sess := sessionBuf[ctxid]
 	if sess == nil {
-		panic(fmt.Sprintf("can not find the context, id=%d", ctxid))
+		panic(fmt.Sprintf("calling can not find the context, id=%d\n", ctxid))
 	}
-	if int(size) != len(sess.responseBuf) {
-		return C.CString(string(""))
+
+	if int(size) != len(sess.responseBuf.Body)+1 {
+		panic(fmt.Sprintf("calling can not find the context, id=%d\n", ctxid))
 	}
-	return C.CString(string(sess.responseBuf))
+
+	flag := "1"
+	if sess.responseBuf.Error {
+		flag = "0"
+	}
+	return C.CString(flag + string(sess.responseBuf.Body))
 }
 
 // Init: we can give a real handler to CallbackBase

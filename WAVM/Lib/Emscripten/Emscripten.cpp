@@ -910,17 +910,13 @@ DEFINE_INTRINSIC_FUNCTION(env, "_call_method", U32, call_method, U32 method_star
 }
 
 DEFINE_INTRINSIC_FUNCTION(env,"_fetch_response", U32, fetch_response, U32 start, U32 size) {
-    /*
-    if (size == 0) {
-        return 1;
-    }*/
     std::string result;
 	Emscripten::Instance* instance = getEmscriptenInstance(contextRuntimeData);
     int ret_code = kXchainServiceClient.get()->fetch_response(result, size);
     U8* outputAddress = memoryArrayPtr<U8>(instance->memory,
             start, U64(result.length()) * U64(1));
     memcpy(outputAddress, result.data(), result.length());
-    return !ret_code;
+    return ret_code;
 }
 
 void Emscripten::injectCommandArgs(Emscripten::Instance* instance,
