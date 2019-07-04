@@ -31,8 +31,8 @@ type session struct {
 
 var sessionBuf map[int64]*session = map[int64]*session{}
 
-//export call_method
-func call_method(cCtxid C.int64_t, p *C.char, size C.uint, p2 *C.char, size2 C.uint) C.uint {
+//export CallMethod
+func CallMethod(cCtxid C.int64_t, p *C.char, size C.uint, p2 *C.char, size2 C.uint) C.uint {
 
 	ctxid := int64(cCtxid)
 	sess := sessionBuf[ctxid]
@@ -61,15 +61,15 @@ func call_method(cCtxid C.int64_t, p *C.char, size C.uint, p2 *C.char, size2 C.u
 	return C.uint(len(sess.responseBuf.Body))
 }
 
-//export fetch_response
-func fetch_response(cCtxid C.int64_t, size C.uint) *C.char {
+//export FetchResponse
+func FetchResponse(cCtxid C.int64_t, size C.uint) *C.char {
 	ctxid := int64(cCtxid)
 	sess := sessionBuf[ctxid]
 	if sess == nil {
 		panic(fmt.Sprintf("calling can not find the context, id=%d\n", ctxid))
 	}
 
-	if int(size) != len(sess.responseBuf.Body) {
+	if int(size) != len(sess.responseBuf.Body)+1 {
 		panic(fmt.Sprintf("calling can not find the context, id=%d\n", ctxid))
 	}
 
