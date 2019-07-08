@@ -898,14 +898,13 @@ void read_memory_ref(Emscripten::Instance* instance,
 
 DEFINE_INTRINSIC_FUNCTION(env, "_call_method", U32, call_method, U32 method_start,
         U32 method_size, U32 args_start, U32 args_size) {
-	Emscripten::Instance* instance = getEmscriptenInstance(contextRuntimeData);
-    std::vector<char> method, args;
-    method.resize(method_size);
-    read_memory_ref(instance, method_start, method_size, method.data());
-    args.resize(args_size);
-    read_memory_ref(instance, args_start, args_size, args.data());
-    std::string str_method(method.begin(), method.end());
-    std::string str_args(args.begin(), args.end());
+    Emscripten::Instance* instance = getEmscriptenInstance(contextRuntimeData);
+
+    std::string str_method, str_args;
+    str_method.resize(method_size, 0);
+    str_args.resize(args_size, 0);
+    read_memory_ref(instance, method_start, method_size, &str_method[0u]);
+    read_memory_ref(instance, args_start, args_size, &str_args[0u]);
     return kXchainServiceClient.get()->call_method(str_method, str_args);
 }
 
